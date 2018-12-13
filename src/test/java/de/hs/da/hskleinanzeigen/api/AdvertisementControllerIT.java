@@ -1,4 +1,4 @@
-package de.hs.da.hskleinanzeigen;
+package de.hs.da.hskleinanzeigen.api;
 
 import de.hs.da.hskleinanzeigen.api.AdvertisementController;
 import de.hs.da.hskleinanzeigen.persistence.AdvertisementEntity;
