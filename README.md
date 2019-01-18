@@ -1,5 +1,5 @@
 # HS Kleinanzeigen
-Java EE Datenbankanwendungsentwicklung Praktika | Wintersemester 2018/2019
+Java EE Datenbankanwendungsentwicklung Praktikum | Wintersemester 2018/2019
 
 Teammitgliedern:
 * Muhammad Rizki Aulia Rahman 749505

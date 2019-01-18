@@ -5,11 +5,9 @@ import de.hs.da.hskleinanzeigen.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.server.ResponseStatusException;
 
 import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
@@ -22,19 +20,17 @@ class UserControllerUT {
     @Mock
     private UserRepository userRepository;
 
+    @Test
+    void findUserById() {
+        UserEntity mockUser = Mockito.mock(UserEntity.class);
+        Mockito.when(userRepository.findById(mockUser.getId())).thenReturn(java.util.Optional.ofNullable(mockUser));
+        assertEquals(userRepository.findById(mockUser.getId()).get(), userController.findUserById(mockUser.getId()));
+    }
 
     @Test
-    void newUser() {
-
-        UserEntity testUser = new UserEntity();
-        testUser.setFirst_name("Testy");
-        testUser.setLast_name("Testman");
-        testUser.setEmail("test@testmail.com");
-        testUser.setPassword("test");
-        testUser.setLocation("Test Town");
-        testUser.setPhone("12345");
-
-        userController.newUser(testUser);
-
+    void findUserByIdNotExist() {
+        UserEntity mockUser = Mockito.mock(UserEntity.class);
+        Mockito.when(userRepository.findById(mockUser.getId())).thenReturn(java.util.Optional.ofNullable(mockUser));
+        assertThrows(ResponseStatusException.class, () -> userController.findUserById(99));
     }
 }

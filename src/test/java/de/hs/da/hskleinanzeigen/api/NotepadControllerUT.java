@@ -13,12 +13,16 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 class NotepadControllerUT {
 
-
     @InjectMocks
     private NotepadController notepadController;
 
     @Mock
-    private NotepadRepository noteRepository;
+    private NotepadRepository notepadRepository;
 
-
+    @Test
+    void findNotepadByUserId() {
+        NotepadEntity mockNote = Mockito.mock(NotepadEntity.class);
+        Mockito.when(notepadRepository.findById(mockNote.getUser().getId())).thenReturn(java.util.Optional.ofNullable(mockNote));
+        assertEquals(notepadRepository.findById(mockNote.getUser().getId()).get(), notepadController.findNotepadByUserId(mockNote.getUser().getId()));
+    }
 }

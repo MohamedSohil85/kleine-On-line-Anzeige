@@ -4,6 +4,7 @@ import javax.persistence.*;
 
 @Entity(name = "category")
 public class CategoryEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -20,6 +21,7 @@ public class CategoryEntity {
     }
 
     public CategoryEntity() {
+
     }
 
     public Integer getId() {

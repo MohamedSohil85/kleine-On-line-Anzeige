@@ -1,16 +1,14 @@
 package de.hs.da.hskleinanzeigen;
 
-import de.hs.da.hskleinanzeigen.persistence.AdvertisementEntity;
-import de.hs.da.hskleinanzeigen.persistence.CategoryEntity;
-import de.hs.da.hskleinanzeigen.repository.AdvertisementRepository;
-import de.hs.da.hskleinanzeigen.repository.CategoryRepository;
-import de.hs.da.hskleinanzeigen.type.AdvertisementType;
+import de.hs.da.hskleinanzeigen.persistence.*;
+import de.hs.da.hskleinanzeigen.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 
+import java.sql.Timestamp;
 
 @SpringBootApplication
 public class HsKleinanzeigenApplication {
@@ -21,54 +19,71 @@ public class HsKleinanzeigenApplication {
     @Autowired
     AdvertisementRepository advertisementRepository;
 
-    /*
-    @EventListener(ApplicationReadyEvent.class)
-    public void doSomethingAfterStartup() {
-        System.out.println("kontol bgst");
-        Iterable<CategoryEntity> allCategories = categoryRepository.findAll();
+    @Autowired
+    OfferRepository offerRepository;
 
-        addCategory("Buecher");
-        addCategory("Wohnung");
-        addCategory("Elektronik");
-        addSubCategory("WG", "Wohnung");
-        addSubCategory("Handy", "Elektronik");
+    @Autowired
+    RequestRepository requestRepository;
 
+    @Autowired
+    UserRepository userRepository;
 
-        addAds("1 Zimmer in 4er WG", "Darmstadt", (float) 300, "sehr guenstig", AdvertisementType.Offer, "WG");
-        addAds("Samsung S11", "Frankfurt", (float) 1500, "prototype model", AdvertisementType.Offer, "Handy");
-        addAds("Wohnung im Untergeschoss", "Darmstadt", (float) 500, "zwischenmieter gesucht", AdvertisementType.Offer, "WG");
-        addAds("Deutsch A1", "Wiesbaden", (float) 50, "looking for this book", AdvertisementType.Request, "Buecher");
-        addAds("Amazon Echo Dot", "Darmstadt", (float) 50, "dringend", AdvertisementType.Request, "Elektronik");
-        addAds("1 Zimmer in 10er WG", "Mannheim", (float) 150, "nur fuer Manner", AdvertisementType.Offer, "WG");
-
-
+    public static void main(String[] args) {
+        SpringApplication.run(HsKleinanzeigenApplication.class, args);
     }
-    */
 
-    void addCategory(String name) {
-        Integer existingid = null;
+    /*@EventListener(ApplicationReadyEvent.class)
+    public void init() {
+
+        System.out.println("Initializing... Filling database with data");
+
+        insertMainCategory("Bücher");
+        insertMainCategory("Wohnung");
+        insertMainCategory("Elektronik");
+        insertSubCategory("WG", "Wohnung");
+        insertSubCategory("Handy", "Elektronik");
+
+        insertAd("Offer", "WG", "1-Zimmer in 4er-WG", "Lorem ipsum", 300, "Darmstadt", Timestamp.valueOf("2019-01-17 16:26:38.00000"));
+        insertAd("Offer", "Handy", "Samsung S11", "Lorem ipsum", 1500, "Frankfurt", Timestamp.valueOf("2019-01-17 16:26:38.00000"));
+        insertAd("Offer", "WG", "Wohnung im UG", "Lorem ipsum", 500, "Darmstadt", Timestamp.valueOf("2019-01-17 16:26:38.00000"));
+        insertAd("Request", "Bücher", "Deutsch A1", "Lorem ipsum", 0, "Wiesbaden", Timestamp.valueOf("2019-01-17 16:26:38.00000"));
+        insertAd("Request", "Elektronik", "Amazon Echo Dot", "Lorem ipsum", 0, "Darmstadt", Timestamp.valueOf("2019-01-17 16:26:38.00000"));
+        insertAd("Offer", "WG", "1-Zimmer in 10-er WG", "Lorem ipsum", 150, "Mannheim", Timestamp.valueOf("2019-01-17 16:26:38.00000"));
+
+        for (int i = 0; i < 1000; i++) {
+            insertUser("mail" + i + "@mustermail.de",
+                    "dummy_pass_" + i,
+                    "User" + i,
+                    "Synthesis" + i,
+                    "0176" + i,
+                    "Musterstadt");
+        }
+    }*/
+
+    @SuppressWarnings("Duplicates")
+    void insertMainCategory(String name) {
+        Integer existingId = null;
         Iterable<CategoryEntity> allCategories = categoryRepository.findAll();
         for (CategoryEntity category : allCategories) {
             if (category.getName().contains(name))
-                existingid = category.getId();
+                existingId = category.getId();
         }
         CategoryEntity newCat = new CategoryEntity();
-        newCat.setId(existingid);
+        newCat.setId(existingId);
         newCat.setName(name);
         categoryRepository.save(newCat);
-
     }
 
-    void addSubCategory(String name, String parentName) {
+    @SuppressWarnings("Duplicates")
+    void insertSubCategory(String name, String parentName) {
         Integer existingId = null;
         CategoryEntity parentCat = null;
         Iterable<CategoryEntity> allCategories = categoryRepository.findAll();
+
         for (CategoryEntity category : allCategories) {
             if (category.getName().contains(parentName))
                 parentCat = category;
-
         }
-
 
         for (CategoryEntity category : allCategories) {
             if (category.getName().contains(name))
@@ -80,41 +95,69 @@ public class HsKleinanzeigenApplication {
         newCat.setParentId(parentCat);
         newCat.setName(name);
         categoryRepository.save(newCat);
-
-
     }
 
-    /*
-    void addAds(String title, String location, Float price, String desc, AdvertisementType type, String category) {
-        Integer existingid = null;
+    @SuppressWarnings("Duplicates")
+    void insertAd(String type, String category, String title, String description, float price, String location, Timestamp created) {
+
         CategoryEntity catObj = null;
         Iterable<CategoryEntity> allCategories = categoryRepository.findAll();
         for (CategoryEntity cat : allCategories) {
-            if (cat.getName().contains(category))
+            if (cat.getName().equals(category)) {
                 catObj = cat;
+            }
         }
 
+        Integer existingId = null;
         Iterable<AdvertisementEntity> allAdvertisements = advertisementRepository.findAll();
         for (AdvertisementEntity advertisement : allAdvertisements) {
-            if (advertisement.getTitle().contains(title))
-                existingid = advertisement.getId();
+            if (advertisement.getTitle().equals(title)) {
+                existingId = advertisement.getId();
+            }
         }
-        AdvertisementEntity newAd = new AdvertisementEntity();
-        newAd.setId(existingid);
-        newAd.setTitle(title);
-        newAd.setLocation(location);
-        newAd.setPrice(price);
-        newAd.setDescription(desc);
-        newAd.setType(type);
-        newAd.setCategory(catObj);
-        advertisementRepository.save(newAd);
 
+        if (type.equals("Offer")) {
+            OfferEntity newOffer = new OfferEntity();
+            newOffer.setId(existingId);
+            newOffer.setCategory(catObj);
+            newOffer.setTitle(title);
+            newOffer.setDescription(description);
+            newOffer.setPrice(price);
+            newOffer.setLocation(location);
+            newOffer.setCreated(created);
+            offerRepository.save(newOffer);
+        } else if (type.equals("Request")) {
+            RequestEntity newRequest = new RequestEntity();
+            newRequest.setId(existingId);
+            newRequest.setCategory(catObj);
+            newRequest.setTitle(title);
+            newRequest.setDescription(description);
+            newRequest.setLocation(location);
+            newRequest.setCreated(created);
+            requestRepository.save(newRequest);
+        } else {
+            System.out.println("Advertisement type not defined!");
+        }
     }
-*/
 
-    public static void main(String[] args) {
+    void insertUser(String email, String password, String first_name, String last_name, String phone, String location) {
+        Integer existingId = null;
+        Iterable<UserEntity> allUsers = userRepository.findAll();
 
-        SpringApplication.run(HsKleinanzeigenApplication.class, args);
+        for (UserEntity user : allUsers) {
+            if (user.getEmail().equals(email)) {
+                existingId = user.getId();
+            }
+        }
 
+        UserEntity newUser = new UserEntity();
+        newUser.setId(existingId);
+        newUser.setEmail(email);
+        newUser.setPassword(password);
+        newUser.setFirst_name(first_name);
+        newUser.setLast_name(last_name);
+        newUser.setPhone(phone);
+        newUser.setLocation(location);
+        userRepository.save(newUser);
     }
 }

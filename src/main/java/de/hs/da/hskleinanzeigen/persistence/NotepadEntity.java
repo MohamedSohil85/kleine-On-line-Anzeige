@@ -1,11 +1,11 @@
 package de.hs.da.hskleinanzeigen.persistence;
 
-
 import javax.persistence.*;
 import java.sql.Timestamp;
 
-@Entity(name="notepad")
+@Entity(name = "notepad")
 public class NotepadEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -29,6 +29,7 @@ public class NotepadEntity {
     }
 
     public NotepadEntity() {
+
     }
 
     public Integer getId() {

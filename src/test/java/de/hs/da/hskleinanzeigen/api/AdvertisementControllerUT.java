@@ -1,21 +1,13 @@
 package de.hs.da.hskleinanzeigen.api;
 
-import de.hs.da.hskleinanzeigen.api.AdvertisementController;
-import de.hs.da.hskleinanzeigen.api.model.Advertisement;
-import de.hs.da.hskleinanzeigen.exception.AdExceptionInterceptor;
 import de.hs.da.hskleinanzeigen.persistence.AdvertisementEntity;
 import de.hs.da.hskleinanzeigen.repository.AdvertisementRepository;
-import org.aspectj.lang.annotation.Before;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-
-import java.sql.Timestamp;
+import org.springframework.web.server.ResponseStatusException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -28,29 +20,22 @@ class AdvertisementControllerUT {
     @Mock
     private AdvertisementRepository adRepository;
 
-
-    //Check if mockAd in the repository equals with the one that the controller found
+    // Check if mockAd in the repository equals with the one that the controller found
     @Test
-    void findAdById() throws AdExceptionInterceptor {
-    AdvertisementEntity mockAd = Mockito.mock(AdvertisementEntity.class);
-    Mockito.when(adRepository.findById(mockAd.getId())).thenReturn(java.util.Optional.ofNullable(mockAd));
-
-    assertEquals(adRepository.findById(mockAd.getId()).get(), adController.findAdvertisementById((mockAd.getId())));
-    }
-
-
-    //Check if an Exception thrown when an Ad is not found
-    @Test
-    void findAdByIdNotExist() {
-
+    void findAdById() {
         AdvertisementEntity mockAd = Mockito.mock(AdvertisementEntity.class);
         Mockito.when(adRepository.findById(mockAd.getId())).thenReturn(java.util.Optional.ofNullable(mockAd));
-
-        Integer dummyAdId = mockAd.getId();
-
-
-        assertThrows(AdExceptionInterceptor.class,
-                () -> adController.findAdvertisementById(9999));
-
+        assertEquals(adRepository.findById(mockAd.getId()).get(), adController.findAdvertisementById((mockAd.getId())));
     }
+
+    // Check if an Exception is thrown when mockAd is not found
+    @Test
+    void findAdByIdNotExist() {
+        AdvertisementEntity mockAd = Mockito.mock(AdvertisementEntity.class);
+        Mockito.when(adRepository.findById(mockAd.getId())).thenReturn(java.util.Optional.ofNullable(mockAd));
+//        Integer mockAdId = mockAd.getId(); // mockAdId = 0
+//        System.out.println("mockAdId: " + mockAdId);
+        assertThrows(ResponseStatusException.class,() -> adController.findAdvertisementById(99));
+    }
+
 }
